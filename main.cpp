@@ -22,6 +22,8 @@ int main(int argc, char *argv[]) {
   const char *PORT = argv[1];
 
   Server server(PORT);
-  cout << server.getPort() << endl;
+
+  server.start();
+
   return 0;
 }

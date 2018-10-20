@@ -10,11 +10,13 @@ class Server {
 private:
   char *port;
   int sockfd, newsockfd;
-  struct addrinfo hints, *res;
+  struct addrinfo *res;
+  const void initAddrInfo();
 
 public:
   Server();
   Server(const char port[]);
   char *getPort();
+  const void start();
 };
 #endif

@@ -22,7 +22,7 @@ Server::Server(const char port[]) : port((char *)port) {
 
   newsockfd = accept(sockfd, (struct sockaddr *)&c_addr, &c_addrlen);
 
-  send(newsockfd, "Hello", sizeof("Hello"), NULL);
+  send(newsockfd, "Hello", sizeof("Hello"), 0);
 
   close(newsockfd);
   close(sockfd);

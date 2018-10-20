@@ -22,18 +22,27 @@ const void Server::initAddrInfo() {
 };
 
 const void Server::start() {
+  initAndListen();
+  createClient();
+
+  send(clients.front().getSockfd(), "Hello", sizeof("Hello"), 0);
+
+  clients.front().end();
+  close(sockfd);
+};
+
+const void Server::createClient() {
+  Client c = Client();
+
+  c.setSockfd(accept(sockfd, (struct sockaddr *)c.getClientAddr(),
+                     c.getClientAddrLen()));
+
+  clients.push_front(c);
+}
+
+const void Server::initAndListen() {
   sockfd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
   bind(sockfd, res->ai_addr, res->ai_addrlen);
   freeaddrinfo(res);
   listen(sockfd, 1);
-
-  struct sockaddr_in c_addr;
-  socklen_t c_addrlen = sizeof(c_addr);
-
-  newsockfd = accept(sockfd, (struct sockaddr *)&c_addr, &c_addrlen);
-
-  send(newsockfd, "Hello", sizeof("Hello"), 0);
-
-  close(newsockfd);
-  close(sockfd);
 };

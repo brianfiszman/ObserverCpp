@@ -27,10 +27,11 @@ const void Server::initAddrInfo() {
 }
 
 const void Server::start() {
-  initAndListen();
-  createClient();
   char buf[256];
   char msg[256];
+
+  initAndListen();
+  createClient();
 
   while (clients.front().getProcessId() != 0) {
     bzero(msg, sizeof(msg));

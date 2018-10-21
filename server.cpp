@@ -78,13 +78,12 @@ const void Server::initAndListen() {
     error("Problem in creating the listening socket");
   }
 
-  setReusable(1);
-
   if (bind(sockfd, res->ai_addr, res->ai_addrlen) < 0) {
     error("bind failed");
   }
 
   freeaddrinfo(res);
+  setReusable(1);
 
   if (listen(sockfd, 3) < 0) {
     error("listen failed");

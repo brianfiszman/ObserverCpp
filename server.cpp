@@ -32,8 +32,16 @@ const void Server::start() {
 };
 
 const void Server::createClient() {
-  Client c = Client(accept(sockfd, (struct sockaddr *)c.getClientAddr(),
-                           c.getClientAddrLen()));
+  Client c;
+
+  int clientfd = accept(sockfd, (struct sockaddr *)c.getClientAddr(),
+                        c.getClientAddrLen());
+
+  c = Client(clientfd);
+
+  if (c.getProcessId() == 0) {
+    cout << "Welcome to child process";
+  }
 
   clients.push_front(c);
 }

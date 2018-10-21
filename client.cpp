@@ -16,10 +16,4 @@ void Client::setClientAddr(struct sockaddr_in clientAddr) {
   this->clientAddr.addr = clientAddr;
 };
 
-void Client::end() {
-  close(sockfd);
-
-  if (pid == 0) {
-    kill(pid, SIGTERM);
-  }
-};
+void Client::end() { close(sockfd); };

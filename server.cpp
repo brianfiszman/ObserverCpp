@@ -60,10 +60,6 @@ const void Server::createClient() {
 
   c = Client(clientfd);
 
-  if (c.getProcessId() == 0) {
-    cout << "Welcome to child process";
-  }
-
   clients.push_front(c);
 }
 

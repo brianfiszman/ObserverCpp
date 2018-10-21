@@ -3,6 +3,11 @@
 
 using namespace std;
 
+const void error(char *error) {
+  perror(error);
+  exit(EXIT_FAILURE);
+}
+
 Server::Server() { port = 0; }
 
 Server::Server(const char port[]) : port((char *)port) { initAddrInfo(); };
@@ -34,8 +39,12 @@ const void Server::start() {
 const void Server::createClient() {
   Client c;
 
-  int clientfd = accept(sockfd, (struct sockaddr *)c.getClientAddr(),
-                        c.getClientAddrLen());
+  int clientfd;
+
+  if ((clientfd = accept(sockfd, (struct sockaddr *)c.getClientAddr(),
+                         c.getClientAddrLen())) < 0) {
+    error("accept failed");
+  }
 
   c = Client(clientfd);
 
@@ -49,20 +58,25 @@ const void Server::createClient() {
 const void Server::initAndListen() {
   if ((sockfd = socket(res->ai_family, res->ai_socktype, res->ai_protocol)) <
       0) {
-    perror("Problem in creating the listening socket");
-    exit(2);
+    error("Problem in creating the listening socket");
   }
 
   setReusable(1);
-  bind(sockfd, res->ai_addr, res->ai_addrlen);
+
+  if (bind(sockfd, res->ai_addr, res->ai_addrlen) < 0) {
+    error("bind failed");
+  }
+
   freeaddrinfo(res);
-  listen(sockfd, 1);
+
+  if (listen(sockfd, 3) < 0) {
+    error("listen failed");
+  }
 };
 
 const void Server::setReusable(int reuse = 1) {
   if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT,
                  (const char *)&reuse, sizeof(reuse)) < 0) {
-    perror("setsockopt failed");
-    exit(EXIT_FAILURE);
+    error("setsockopt failed");
   }
 }

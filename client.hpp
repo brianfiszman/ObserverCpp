@@ -17,6 +17,8 @@ private:
   } clientAddr;
 
 public:
+  bool operator==(const Client &c) const { return this == &c; }
+  bool operator!=(const Client &c) const { return !operator==(c); }
   Client(), Client(int);
   int getSockfd();
   void setSockfd(int), setClientAddr(struct sockaddr_in), end();

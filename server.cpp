@@ -10,7 +10,7 @@ const void error(const char *error) {
 
 Server::Server() { port = 0; }
 
-Server::Server(const char port[]) : port((char *)port) { initAddrInfo(); };
+Server::Server(const char port[]) : port((char *)port) { initAddrInfo(); }
 
 char *Server::getPort() { return port; };
 
@@ -24,7 +24,7 @@ const void Server::initAddrInfo() {
   hints.ai_flags = AI_PASSIVE;
 
   getaddrinfo(NULL, port, &hints, &res);
-};
+}
 
 const void Server::start() {
   initAndListen();
@@ -46,7 +46,7 @@ const void Server::start() {
 
   destroyClient(clients.front());
   close(sockfd);
-};
+}
 
 const void Server::createClient() {
   Client c;
@@ -67,7 +67,10 @@ const void Server::createClient() {
   clients.push_front(c);
 }
 
-const void Server::destroyClient(Client &c) { c.end(); }
+const void Server::destroyClient(Client &c) {
+  c.end();
+  clients.remove(c);
+}
 
 const void Server::initAndListen() {
   if ((sockfd = socket(res->ai_family, res->ai_socktype, res->ai_protocol)) <
@@ -86,7 +89,7 @@ const void Server::initAndListen() {
   if (listen(sockfd, 3) < 0) {
     error("listen failed");
   }
-};
+}
 
 const void Server::setReusable(int reuse = 1) {
   if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT,

@@ -27,23 +27,11 @@ const void Server::initAddrInfo() {
 }
 
 const void Server::start() {
-  char buf[256];
-  char msg[256];
-
   initAndListen();
   createClient();
 
-  while (clients.front().getProcessId() != 0) {
-    bzero(msg, sizeof(msg));
-    cin >> msg;
-    send(clients.front().getSockfd(), msg, sizeof(msg), 0);
-  }
-  while (clients.front().getProcessId() == 0) {
-    if (recv(clients.front().getSockfd(), buf, sizeof(buf), 0) != 0) {
-      cout << buf << endl;
-      bzero(buf, sizeof(buf));
-    }
-  }
+  send();
+  receive();
 
   destroyClient(clients.front());
   close(sockfd);
@@ -84,6 +72,33 @@ const void Server::initAndListen() {
 
   if (listen(sockfd, 3) < 0) {
     error("listen failed");
+  }
+}
+
+const void Server::send() {
+  char buf[1024];
+
+  while (clients.front().getProcessId() != 0) {
+    bzero(buf, sizeof(buf));
+    cin >> buf;
+    ::send(clients.front().getSockfd(), buf, sizeof(buf), 0);
+  }
+}
+
+const void Server::receive() {
+  char buf[1024];
+  ssize_t recvRes;
+
+  while (clients.front().getProcessId() == 0) {
+    recvRes = recv(clients.front().getSockfd(), buf, sizeof(buf), 0);
+
+    if (recvRes != 0) {
+      cout << buf << endl;
+      bzero(buf, sizeof(buf));
+    } else if (recvRes == 0) {
+      cout << "CLIENT DISCONNECTED, CLOSING SOCKET." << endl;
+      break;
+    }
   }
 }
 

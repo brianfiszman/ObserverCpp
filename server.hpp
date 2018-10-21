@@ -25,6 +25,7 @@ public:
   char *getPort();
   const void start();
   const void createClient();
+  const void destroyClient(Client &c);
   const void initAndListen();
 };
 #endif

@@ -32,7 +32,7 @@ const void Server::start() {
 
   send(clients.front().getSockfd(), "Hello", sizeof("Hello"), 0);
 
-  clients.front().end();
+  destroyClient(clients.front());
   close(sockfd);
 };
 
@@ -54,6 +54,8 @@ const void Server::createClient() {
 
   clients.push_front(c);
 }
+
+const void Server::destroyClient(Client &c) { c.end(); }
 
 const void Server::initAndListen() {
   if ((sockfd = socket(res->ai_family, res->ai_socktype, res->ai_protocol)) <

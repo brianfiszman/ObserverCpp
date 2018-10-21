@@ -18,5 +18,8 @@ void Client::setClientAddr(struct sockaddr_in clientAddr) {
 
 void Client::end() {
   close(sockfd);
-  kill(pid, SIGTERM);
+
+  if (pid == 0) {
+    kill(pid, SIGTERM);
+  }
 };

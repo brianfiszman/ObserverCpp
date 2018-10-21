@@ -40,7 +40,20 @@ const void Server::createClient() {
 
 const void Server::initAndListen() {
   sockfd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+  setReusable(1);
   bind(sockfd, res->ai_addr, res->ai_addrlen);
   freeaddrinfo(res);
   listen(sockfd, 1);
 };
+
+const void Server::setReusable(int reuse = 1) {
+  if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, (const char *)&reuse,
+                 sizeof(reuse)) < 0)
+    perror("setsockopt(SO_REUSEADDR) failed");
+
+#ifdef SO_REUSEPORT
+  if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEPORT, (const char *)&reuse,
+                 sizeof(reuse)) < 0)
+    perror("setsockopt(SO_REUSEPORT) failed");
+#endif
+}

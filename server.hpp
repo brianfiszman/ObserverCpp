@@ -17,6 +17,7 @@ private:
   list<Client> clients;
   struct addrinfo *res;
   const void initAddrInfo();
+  const void setReusable(int);
 
 public:
   Server();

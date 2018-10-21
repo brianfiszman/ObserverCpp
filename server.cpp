@@ -29,8 +29,20 @@ const void Server::initAddrInfo() {
 const void Server::start() {
   initAndListen();
   createClient();
+  char buf[256];
+  char msg[256];
 
-  send(clients.front().getSockfd(), "Hello", sizeof("Hello"), 0);
+  while (clients.front().getProcessId() != 0) {
+    bzero(msg, sizeof(msg));
+    cin >> msg;
+    send(clients.front().getSockfd(), msg, sizeof(msg), 0);
+  }
+  while (clients.front().getProcessId() == 0) {
+    if (recv(clients.front().getSockfd(), buf, sizeof(buf), 0) != 0) {
+      cout << buf << endl;
+      bzero(buf, sizeof(buf));
+    }
+  }
 
   destroyClient(clients.front());
   close(sockfd);

@@ -32,10 +32,8 @@ const void Server::start() {
 };
 
 const void Server::createClient() {
-  Client c = Client();
-
-  c.setSockfd(accept(sockfd, (struct sockaddr *)c.getClientAddr(),
-                     c.getClientAddrLen()));
+  Client c = Client(accept(sockfd, (struct sockaddr *)c.getClientAddr(),
+                           c.getClientAddrLen()));
 
   clients.push_front(c);
 }

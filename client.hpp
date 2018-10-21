@@ -8,8 +8,10 @@
 class Client {
 private:
   int sockfd;
-  socklen_t clientAddrLen = sizeof(clientAddr);
-  struct sockaddr_in clientAddr;
+  struct clientAddr {
+    struct sockaddr_in addr;
+    socklen_t addrLen = sizeof(addr);
+  } clientAddr;
 
 public:
   Client(), Client(int);

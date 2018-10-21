@@ -47,7 +47,12 @@ const void Server::createClient() {
 }
 
 const void Server::initAndListen() {
-  sockfd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+  if ((sockfd = socket(res->ai_family, res->ai_socktype, res->ai_protocol)) <
+      0) {
+    perror("Problem in creating the listening socket");
+    exit(2);
+  }
+
   setReusable(1);
   bind(sockfd, res->ai_addr, res->ai_addrlen);
   freeaddrinfo(res);
@@ -55,13 +60,9 @@ const void Server::initAndListen() {
 };
 
 const void Server::setReusable(int reuse = 1) {
-  if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, (const char *)&reuse,
-                 sizeof(reuse)) < 0)
-    perror("setsockopt(SO_REUSEADDR) failed");
-
-#ifdef SO_REUSEPORT
-  if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEPORT, (const char *)&reuse,
-                 sizeof(reuse)) < 0)
-    perror("setsockopt(SO_REUSEPORT) failed");
-#endif
+  if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT,
+                 (const char *)&reuse, sizeof(reuse)) < 0) {
+    perror("setsockopt failed");
+    exit(EXIT_FAILURE);
+  }
 }

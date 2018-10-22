@@ -1,6 +1,18 @@
 #ifndef SERVER_H
 #define SERVER_H
 
+#define CHECK(errno)                                                           \
+  ({                                                                           \
+    int __errno = errno;                                                       \
+    (__errno == -1 ? ({                                                        \
+      fprintf(stderr, "ERROR (" __FILE__ ":%d) -- %s\n", __LINE__,             \
+              strerror(errno));                                                \
+      exit(-1);                                                                \
+      -1;                                                                      \
+    })                                                                         \
+                   : __errno);                                                 \
+  })
+
 #include "client.hpp"
 #include <list>
 #include <netdb.h>

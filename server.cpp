@@ -3,15 +3,8 @@
 
 using namespace std;
 
-const void error(const char *error) {
-  perror(error);
-  exit(EXIT_FAILURE);
-}
-
 Server::Server() { port = 0; }
-
 Server::Server(const char port[]) : port((char *)port) { initAddrInfo(); }
-
 char *Server::getPort() { return port; };
 
 const void Server::initAddrInfo() {
@@ -42,10 +35,8 @@ const void Server::createClient() {
 
   int clientfd;
 
-  if ((clientfd = accept(sockfd, (struct sockaddr *)c.getClientAddr(),
-                         c.getClientAddrLen())) < 0) {
-    error("accept failed");
-  }
+  CHECK(clientfd = accept(sockfd, (struct sockaddr *)c.getClientAddr(),
+                          c.getClientAddrLen()));
 
   c = Client(clientfd);
 
@@ -58,21 +49,13 @@ const void Server::destroyClient(Client &c) {
 }
 
 const void Server::initAndListen() {
-  if ((sockfd = socket(res->ai_family, res->ai_socktype, res->ai_protocol)) <
-      0) {
-    error("Problem in creating the listening socket");
-  }
-
-  if (bind(sockfd, res->ai_addr, res->ai_addrlen) < 0) {
-    error("bind failed");
-  }
+  CHECK(sockfd = socket(res->ai_family, res->ai_socktype, res->ai_protocol));
+  CHECK(bind(sockfd, res->ai_addr, res->ai_addrlen));
 
   freeaddrinfo(res);
   setReusable(1);
 
-  if (listen(sockfd, 3) < 0) {
-    error("listen failed");
-  }
+  CHECK(listen(sockfd, 3));
 }
 
 const void Server::send() {
@@ -102,9 +85,7 @@ const void Server::receive() {
   }
 }
 
-const void Server::setReusable(int reuse = 1) {
-  if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT,
-                 (const char *)&reuse, sizeof(reuse)) < 0) {
-    error("setsockopt failed");
-  }
+const void Server::setReusable(const int reuse = 1) {
+  CHECK(setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT,
+                   (const char *)&reuse, sizeof(reuse)));
 }

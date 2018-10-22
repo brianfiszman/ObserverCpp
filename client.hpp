@@ -1,5 +1,6 @@
 #ifndef CLIENT_H
 #define CLIENT_H
+#include <iostream>
 #include <netdb.h>
 #include <signal.h>
 #include <string.h>
@@ -7,6 +8,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+using namespace std;
 class Client {
 private:
   int sockfd;
@@ -25,5 +27,7 @@ public:
   struct sockaddr_in *getClientAddr();
   socklen_t *getClientAddrLen();
   pid_t getProcessId();
+  const void receive();
+  const void send();
 };
 #endif

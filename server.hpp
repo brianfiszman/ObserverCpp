@@ -39,7 +39,5 @@ public:
   const void createClient();
   const void destroyClient(Client &c);
   const void initAndListen();
-  const void receive();
-  const void send();
 };
 #endif

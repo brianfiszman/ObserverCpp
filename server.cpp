@@ -23,8 +23,8 @@ const void Server::start() {
   initAndListen();
   createClient();
 
-  send();
-  receive();
+  clients.front().send();
+  clients.front().receive();
 
   destroyClient(clients.front());
   close(sockfd);
@@ -56,33 +56,6 @@ const void Server::initAndListen() {
   setReusable(1);
 
   CHECK(listen(sockfd, 3));
-}
-
-const void Server::send() {
-  char buf[1024];
-
-  while (clients.front().getProcessId() != 0) {
-    bzero(buf, sizeof(buf));
-    cin >> buf;
-    ::send(clients.front().getSockfd(), buf, sizeof(buf), 0);
-  }
-}
-
-const void Server::receive() {
-  char buf[1024];
-  ssize_t recvRes;
-
-  while (clients.front().getProcessId() == 0) {
-    recvRes = recv(clients.front().getSockfd(), buf, sizeof(buf), 0);
-
-    if (recvRes != 0) {
-      cout << buf << endl;
-      bzero(buf, sizeof(buf));
-    } else if (recvRes == 0) {
-      cout << "CLIENT DISCONNECTED, CLOSING SOCKET." << endl;
-      break;
-    }
-  }
 }
 
 const void Server::setReusable(const int reuse = 1) {

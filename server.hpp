@@ -14,6 +14,7 @@
   })
 
 #include "client.hpp"
+#include <errno.h>
 #include <list>
 #include <netdb.h>
 #include <string.h>

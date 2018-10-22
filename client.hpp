@@ -2,11 +2,7 @@
 #define CLIENT_H
 #include <iostream>
 #include <netdb.h>
-#include <signal.h>
 #include <string.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <unistd.h>
 
 using namespace std;
 class Client {

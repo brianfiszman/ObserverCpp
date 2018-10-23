@@ -20,17 +20,23 @@ const void Server::initAddrInfo() {
 }
 
 const void Server::start() {
+  Client c;
+
   initAndListen();
-  createClient();
 
-  clients.front().send();
-  clients.front().receive();
+  do
+    c = createClient();
+  while (fork() == 0);
 
-  destroyClient(clients.front());
+  c.send();
+  c.receive();
+
+  destroyClient(c);
+
   close(sockfd);
 }
 
-const void Server::createClient() {
+const Client Server::createClient() {
   Client c;
 
   int clientfd;
@@ -41,6 +47,8 @@ const void Server::createClient() {
   c = Client(clientfd);
 
   clients.push_front(c);
+
+  return c;
 }
 
 const void Server::destroyClient(Client &c) {

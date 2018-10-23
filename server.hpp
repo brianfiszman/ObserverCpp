@@ -37,8 +37,8 @@ public:
   Server(const char port[]);
   char *getPort();
   const void start();
-  const void createClient();
   const void destroyClient(Client &c);
   const void initAndListen();
+  const Client createClient();
 };
 #endif

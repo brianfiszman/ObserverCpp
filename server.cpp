@@ -12,9 +12,9 @@ const void Server::initAddrInfo() {
 
   memset(&hints, 0, sizeof(struct addrinfo));
 
-  hints.ai_family = AF_INET;
   hints.ai_socktype = SOCK_STREAM;
-  hints.ai_flags = AI_PASSIVE;
+  hints.ai_family   = AF_INET;
+  hints.ai_flags    = AI_PASSIVE;
 
   getaddrinfo(NULL, port, &hints, &res);
 }
@@ -38,8 +38,7 @@ const void Server::start() {
 
 const Client Server::createClient() {
   Client c;
-
-  int clientfd;
+  int    clientfd;
 
   CHECK(clientfd = accept(sockfd, (struct sockaddr *)c.getClientAddr(),
                           c.getClientAddrLen()));

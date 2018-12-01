@@ -3,11 +3,11 @@
 
 Client::Client(){};
 Client::Client(int sockfd) : sockfd(sockfd), pid(fork()){};
-int Client::getSockfd() { return sockfd; };
-void Client::setSockfd(int sockfd) { this->sockfd = sockfd; };
-void Client::end() { close(sockfd); };
 socklen_t *Client::getClientAddrLen() { return &clientAddr.addrLen; };
-pid_t Client::getProcessId() { return pid; };
+pid_t      Client::getProcessId() { return pid; };
+void       Client::setSockfd(int sockfd) { this->sockfd = sockfd; };
+void       Client::end() { close(sockfd); };
+int        Client::getSockfd() { return sockfd; };
 
 struct sockaddr_in *Client::getClientAddr() {
   return &clientAddr.addr;
@@ -28,8 +28,8 @@ const void Client::send() {
 }
 
 const void Client::receive() {
-  char buf[1024];
   ssize_t recvRes;
+  char    buf[1024];
 
   while (pid == 0) {
     recvRes = recv(sockfd, buf, sizeof(buf), 0);

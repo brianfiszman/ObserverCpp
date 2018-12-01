@@ -1,44 +1,45 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-#define CHECK(errno)                                                           \
-  ({                                                                           \
-    int __errno = errno;                                                       \
-    (__errno == -1 ? ({                                                        \
-      fprintf(stderr, "ERROR (" __FILE__ ":%d) -- %s\n", __LINE__,             \
-              strerror(errno));                                                \
-      exit(-1);                                                                \
-      -1;                                                                      \
-    })                                                                         \
-                   : __errno);                                                 \
+#define CHECK(errno)                                               \
+  ({                                                               \
+    int __errno = errno;                                           \
+    (__errno == -1 ? ({                                            \
+      fprintf(stderr, "ERROR (" __FILE__ ":%d) -- %s\n", __LINE__, \
+              strerror(errno));                                    \
+      exit(-1);                                                    \
+      -1;                                                          \
+    })                                                             \
+                   : __errno);                                     \
   })
 
-#include "client.hpp"
 #include <errno.h>
-#include <list>
 #include <netdb.h>
 #include <string.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <list>
+#include "client.hpp"
 
 using namespace std;
 
 class Server {
-private:
-  char *port;
-  int sockfd;
-  list<Client> clients;
+ private:
   struct addrinfo *res;
-  const void initAddrInfo();
-  const void setReusable(int);
+  list<Client>     clients;
+  const void       initAddrInfo();
+  const void       setReusable(int);
+  char *           port;
+  int              sockfd;
 
-public:
+ public:
   Server();
   Server(const char port[]);
-  char *getPort();
-  const void start();
-  const void destroyClient(Client &c);
-  const void initAndListen();
+
   const Client createClient();
+  const void   start();
+  const void   destroyClient(Client &c);
+  const void   initAndListen();
+  char *       getPort();
 };
 #endif

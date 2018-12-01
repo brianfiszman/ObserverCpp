@@ -1,5 +1,5 @@
-#include "server.hpp"
 #include <iostream>
+#include "server.hpp"
 
 using namespace std;
 

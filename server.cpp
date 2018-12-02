@@ -6,10 +6,9 @@ using namespace std;
 
 Server::Server() { port = 0; }
 Server::Server(const char port[])
-    : port((char *)port), clientCluster(new ClientCluster()) {
+    : clientCluster(new ClientCluster()), port((char *)port) {
   this->initAddrInfo();
 }
-char *Server::getPort() { return port; };
 
 const void Server::initAddrInfo() {
   struct addrinfo hints;
@@ -23,12 +22,15 @@ const void Server::initAddrInfo() {
   getaddrinfo(NULL, port, &hints, &res);
 }
 
-int Server::getListeningFd() { return this->listenFd; }
-
 ClientCluster *Server::getClientCluster() { return this->clientCluster; }
+char *         Server::getPort() { return this->port; };
+int            Server::getListeningFd() { return this->listenFd; }
+const void     Server::setReusable(const int reuse = 1) {
+  CHECK(setsockopt(this->listenFd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT,
+                   (const char *)&reuse, sizeof(reuse)));
+}
 
 Client Server::acceptClient() {
-  int *  clientfd;
   Client c = Client();
 
   c.setSockfd(CHECK(accept(this->listenFd, (struct sockaddr *)c.getClientAddr(),
@@ -46,9 +48,4 @@ const void Server::initAndListen() {
   setReusable(1);
 
   CHECK(listen(this->listenFd, 3));
-}
-
-const void Server::setReusable(const int reuse = 1) {
-  CHECK(setsockopt(this->listenFd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT,
-                   (const char *)&reuse, sizeof(reuse)));
 }

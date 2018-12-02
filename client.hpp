@@ -21,6 +21,7 @@ class Client {
   const ssize_t       receive();
   socklen_t *         getClientAddrLen();
   const void          send();
+  const void          notifyDisconnection(char *);
   void                setSockfd(int), setClientAddr(struct sockaddr_in), end();
   int                 getSockfd();
 };

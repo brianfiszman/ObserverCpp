@@ -8,6 +8,8 @@ using namespace std;
 
 mutex myMutex;
 
+struct timeval selTimeout;
+
 void error(char *err_msg) {
   perror(err_msg);
   exit(1);
@@ -23,10 +25,13 @@ int chk_argn(int *argc) {
 
 const void listenConnections(ClientCluster *cc, Server *server,
                              fd_set *master) {
+  selTimeout.tv_sec  = 0; /* timeout (secs.) */
+  selTimeout.tv_usec = 0; /* 0 microseconds */
+
   while (true) {
     FD_ZERO(master);
     FD_SET(server->getListeningFd(), master);
-    select(FD_SETSIZE, master, NULL, NULL, NULL);
+    select(FD_SETSIZE, master, NULL, NULL, &selTimeout);
 
     if (FD_ISSET(server->getListeningFd(), master)) {
       lock_guard<std::mutex> guard(myMutex);
@@ -36,9 +41,9 @@ const void listenConnections(ClientCluster *cc, Server *server,
 }
 
 const void receiveMessages(ClientCluster *cc, fd_set *reader) {
-  struct timeval selTimeout;
   selTimeout.tv_sec  = 0; /* timeout (secs.) */
   selTimeout.tv_usec = 0; /* 0 microseconds */
+
   do {
     FD_ZERO(reader);
     if (cc->getClients().size() > 0) {
@@ -50,6 +55,7 @@ const void receiveMessages(ClientCluster *cc, fd_set *reader) {
         if (FD_ISSET(client.getSockfd(), reader) > 0) {
           if (client.receive() <= 0) {
             cc->destroyClient(client);
+            cc->notify(client);
             continue;
           }
         }

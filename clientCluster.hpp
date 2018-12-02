@@ -14,7 +14,8 @@ class ClientCluster {
 
   list<Client> getClients();
   const void   createClient(Client);
-  const void   destroyClient(Client& c);
+  const void   destroyClient(Client&);
+  const void   notify(Client&);
 };
 
 #endif

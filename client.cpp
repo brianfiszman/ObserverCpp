@@ -1,6 +1,7 @@
 #include "client.hpp"
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <string>
 
 Client::Client(){};
 Client::Client(int sockfd) : sockfd(sockfd){};
@@ -23,6 +24,16 @@ const void Client::send() {
   bzero(buf, sizeof(buf));
   cin >> buf;
   ::send(sockfd, buf, sizeof(buf), 0);
+}
+
+const void Client::notifyDisconnection(char *ipAddress) {
+  char message[64] = "The client: ";
+  char buf[64]     = " has disconnected.\n\r";
+
+  strncat(message, ipAddress, sizeof(message));
+  strncat(message, buf, sizeof(message));
+
+  ::send(sockfd, message, sizeof(message), 0);
 }
 
 const ssize_t Client::receive() {

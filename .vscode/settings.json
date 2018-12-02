@@ -43,7 +43,9 @@
         "tuple": "cpp",
         "typeinfo": "cpp",
         "utility": "cpp",
-        "algorithm": "cpp"
+        "algorithm": "cpp",
+        "condition_variable": "cpp",
+        "mutex": "cpp"
     },
     "C_Cpp.clang_format_sortIncludes": true,
     "C_Cpp.default.cppStandard": "c++11",

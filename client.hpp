@@ -14,7 +14,7 @@ class Client {
   } clientAddr;
 
  public:
-  bool operator==(const Client &c) const { return this == &c; }
+  bool operator==(const Client &c) const { return this->sockfd == c.sockfd; }
   bool operator!=(const Client &c) const { return !operator==(c); }
   Client(), Client(int);
   struct sockaddr_in *getClientAddr();

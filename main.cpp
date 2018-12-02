@@ -35,7 +35,9 @@ const void listenConnections(ClientCluster *cc, Server *server,
 
     if (FD_ISSET(server->getListeningFd(), master)) {
       lock_guard<std::mutex> guard(myMutex);
-      cc->createClient(server->acceptClient());
+
+      Client c = cc->createClient(server->acceptClient());
+      cc->notify(c, true);
     }
   }
 }
@@ -55,7 +57,7 @@ const void receiveMessages(ClientCluster *cc, fd_set *reader) {
         if (FD_ISSET(client.getSockfd(), reader) > 0) {
           if (client.receive() <= 0) {
             cc->destroyClient(client);
-            cc->notify(client);
+            cc->notify(client, false);
             continue;
           }
         }

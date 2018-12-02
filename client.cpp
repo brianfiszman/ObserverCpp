@@ -36,6 +36,16 @@ const void Client::notifyDisconnection(char *ipAddress) {
   ::send(sockfd, message, sizeof(message), 0);
 }
 
+const void Client::notifyConnection(char *ipAddress) {
+  char message[64] = "The client: ";
+  char buf[64]     = " has connected.\n\r";
+
+  strncat(message, ipAddress, sizeof(message));
+  strncat(message, buf, sizeof(message));
+
+  ::send(sockfd, message, sizeof(message), 0);
+}
+
 const ssize_t Client::receive() {
   ssize_t recvRes;
   char    buf[1024];

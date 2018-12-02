@@ -12,10 +12,10 @@ class ClientCluster {
   ClientCluster(){};
   ~ClientCluster(){};
 
+  const Client createClient(Client);
   list<Client> getClients();
-  const void   createClient(Client);
   const void   destroyClient(Client&);
-  const void   notify(Client&);
+  const void   notify(Client&, bool);
 };
 
 #endif

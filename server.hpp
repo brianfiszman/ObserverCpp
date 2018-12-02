@@ -18,28 +18,30 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <unistd.h>
-#include <list>
 #include "client.hpp"
+#include "clientCluster.hpp"
 
 using namespace std;
 
 class Server {
  private:
-  struct addrinfo *res;
-  list<Client>     clients;
+  ClientCluster*   clientCluster;
+  struct addrinfo* res;
   const void       initAddrInfo();
   const void       setReusable(int);
-  char *           port;
-  int              sockfd;
+  char*            port;
+  int              listenFd;
 
  public:
   Server();
   Server(const char port[]);
+  ~Server() { delete clientCluster; };
 
-  const Client createClient();
-  const void   start();
-  const void   destroyClient(Client &c);
-  const void   initAndListen();
-  char *       getPort();
+  ClientCluster* getClientCluster();
+  const void     initAndListen();
+  Client         acceptClient();
+  char*          getPort();
+  int            getListeningFd();
 };
+
 #endif

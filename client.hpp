@@ -7,8 +7,7 @@
 using namespace std;
 class Client {
  private:
-  pid_t pid;
-  int   sockfd;
+  int sockfd;
   struct clientAddr {
     struct sockaddr_in addr;
     socklen_t          addrLen = sizeof(addr);
@@ -19,10 +18,9 @@ class Client {
   bool operator!=(const Client &c) const { return !operator==(c); }
   Client(), Client(int);
   struct sockaddr_in *getClientAddr();
+  const ssize_t       receive();
   socklen_t *         getClientAddrLen();
-  const void          receive();
   const void          send();
-  pid_t               getProcessId();
   void                setSockfd(int), setClientAddr(struct sockaddr_in), end();
   int                 getSockfd();
 };

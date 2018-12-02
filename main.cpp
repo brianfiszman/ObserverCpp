@@ -16,6 +16,21 @@ int chk_argn(int *argc) {
   return 0;
 }
 
+const void start(Server &server) {
+  server.initAndListen();
+  ClientCluster *cc = server.getClientCluster();
+
+  do {
+    cc->createClient(server.acceptClient());
+
+    for (auto client : cc->getClients()) {
+      if (client.receive() <= 0) { cc->destroyClient(client); }
+    }
+  } while (true);
+
+  close(server.getListeningFd());
+}
+
 int main(int argc, char *argv[]) {
   chk_argn(&argc);
 
@@ -23,7 +38,7 @@ int main(int argc, char *argv[]) {
 
   Server server(PORT);
 
-  server.start();
+  start(server);
 
   return 0;
 }

@@ -1,10 +1,14 @@
 #include "server.hpp"
+#include <arpa/inet.h>
 #include <iostream>
 
 using namespace std;
 
 Server::Server() { port = 0; }
-Server::Server(const char port[]) : port((char *)port) { initAddrInfo(); }
+Server::Server(const char port[])
+    : port((char *)port), clientCluster(new ClientCluster()) {
+  this->initAddrInfo();
+}
 char *Server::getPort() { return port; };
 
 const void Server::initAddrInfo() {
@@ -19,53 +23,32 @@ const void Server::initAddrInfo() {
   getaddrinfo(NULL, port, &hints, &res);
 }
 
-const void Server::start() {
-  Client c;
+int Server::getListeningFd() { return this->listenFd; }
 
-  initAndListen();
+ClientCluster *Server::getClientCluster() { return this->clientCluster; }
 
-  do
-    c = createClient();
-  while (fork() == 0);
+Client Server::acceptClient() {
+  int *  clientfd;
+  Client c = Client();
 
-  c.send();
-  c.receive();
-
-  destroyClient(c);
-
-  close(sockfd);
-}
-
-const Client Server::createClient() {
-  Client c;
-  int    clientfd;
-
-  CHECK(clientfd = accept(sockfd, (struct sockaddr *)c.getClientAddr(),
-                          c.getClientAddrLen()));
-
-  c = Client(clientfd);
-
-  clients.push_front(c);
+  c.setSockfd(CHECK(accept(this->listenFd, (struct sockaddr *)c.getClientAddr(),
+                           c.getClientAddrLen())));
 
   return c;
 }
 
-const void Server::destroyClient(Client &c) {
-  c.end();
-  clients.remove(c);
-}
-
 const void Server::initAndListen() {
-  CHECK(sockfd = socket(res->ai_family, res->ai_socktype, res->ai_protocol));
-  CHECK(bind(sockfd, res->ai_addr, res->ai_addrlen));
+  CHECK(this->listenFd =
+            socket(res->ai_family, res->ai_socktype, res->ai_protocol));
+  CHECK(bind(this->listenFd, res->ai_addr, res->ai_addrlen));
 
   freeaddrinfo(res);
   setReusable(1);
 
-  CHECK(listen(sockfd, 3));
+  CHECK(listen(this->listenFd, 3));
 }
 
 const void Server::setReusable(const int reuse = 1) {
-  CHECK(setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT,
+  CHECK(setsockopt(this->listenFd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT,
                    (const char *)&reuse, sizeof(reuse)));
 }

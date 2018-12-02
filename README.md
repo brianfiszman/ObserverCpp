@@ -1,37 +1,22 @@
-## Welcome to GitHub Pages
+# Welcome to my repository 
+## What is this?
+This program is intended to work as an observer design pattern's example, written as a TCP
+Server that receives connections and notifies its clients whenever someone connects or
+disconnects.
+<br><br>
+## How do I build it?
+Just compile it running ```make``` on your console.
+<br><br>
 
-You can use the [editor on GitHub](https://github.com/brianfiszman/ObserverCpp/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
+## How do I run it?
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+Almost as simple as before, just ```cd``` inside the project folder after compiling and ```./server [PORT NUMBER]```.
+By the moment you execute, the server will be listening for connections.
 
-### Markdown
+For fun, I use `netcat` to connect to this program which not only provides you with a client
+fully capable of getting output sent from the server but also input from the client.
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+If you are testing on localhost all you have to do is having **netcat** installed and then:
+```nc localhost [PORT NUMBER]```
 
-```markdown
-Syntax highlighted code block
-
-# Header 1
-## Header 2
-### Header 3
-
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
-```
-
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/brianfiszman/ObserverCpp/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
+The port number you choose must be the same than the one you choose for the server.

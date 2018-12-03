@@ -23,17 +23,15 @@ int chk_argn(int *argc) {
   return 0;
 }
 
-const void listenConnections(ClientCluster *cc, Server *server,
-                             fd_set *master) {
-  selTimeout.tv_sec  = 0; /* timeout (secs.) */
-  selTimeout.tv_usec = 0; /* 0 microseconds */
-
+const void listenConnections(ClientCluster *cc,
+                             Server *       server,
+                             fd_set *       listenSet) {
   while (true) {
-    FD_ZERO(master);
-    FD_SET(server->getListeningFd(), master);
-    select(FD_SETSIZE, master, NULL, NULL, &selTimeout);
+    FD_ZERO(listenSet);
+    FD_SET(server->getListeningFd(), listenSet);
+    select(FD_SETSIZE, listenSet, NULL, NULL, NULL);
 
-    if (FD_ISSET(server->getListeningFd(), master)) {
+    if (FD_ISSET(server->getListeningFd(), listenSet)) {
       lock_guard<std::mutex> guard(myMutex);
 
       Client c = cc->createClient(server->acceptClient());
@@ -68,10 +66,10 @@ const void receiveMessages(ClientCluster *cc, fd_set *reader) {
 
 const void start(Server &server) {
   server.initAndListen();
-  fd_set         master, reader;
+  fd_set         listenSet, reader;
   ClientCluster *cc = server.getClientCluster();
 
-  thread(listenConnections, cc, &server, &master).detach();
+  thread(listenConnections, cc, &server, &listenSet).detach();
   thread(receiveMessages, cc, &reader).join();
 
   close(server.getListeningFd());

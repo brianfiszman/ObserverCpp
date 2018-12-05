@@ -1,4 +1,5 @@
 #include <fcntl.h>
+#include <semaphore.h>
 #include <iostream>
 #include <mutex>
 #include <thread>
@@ -6,7 +7,8 @@
 
 using namespace std;
 
-mutex myMutex;
+mutex sockLock;
+sem_t recvLock;
 
 struct timeval selTimeout;
 
@@ -32,7 +34,9 @@ const void listenConnections(ClientCluster *cc,
     select(FD_SETSIZE, listenSet, NULL, NULL, NULL);
 
     if (FD_ISSET(server->getListeningFd(), listenSet)) {
-      lock_guard<std::mutex> guard(myMutex);
+      sem_post(&recvLock);
+
+      lock_guard<std::mutex> guard(sockLock);
 
       Client c = cc->createClient(server->acceptClient());
       cc->notify(c, true);
@@ -40,17 +44,22 @@ const void listenConnections(ClientCluster *cc,
   }
 }
 
-const void receiveMessages(ClientCluster *cc, fd_set *reader) {
-  selTimeout.tv_sec  = 0; /* timeout (secs.) */
-  selTimeout.tv_usec = 0; /* 0 microseconds */
-
+const void receiveMessages(ClientCluster *cc, Server *server, fd_set *reader) {
   do {
     FD_ZERO(reader);
+
+    if (cc->getClients().size() <= 0) {
+      sem_init(&recvLock, 0, 0);
+      sem_wait(&recvLock);
+    }
+
+    lock_guard<std::mutex> guard(sockLock);
     if (cc->getClients().size() > 0) {
       for (auto client : cc->getClients()) FD_SET(client.getSockfd(), reader);
 
-      select(FD_SETSIZE, reader, NULL, NULL, &selTimeout);
-      lock_guard<std::mutex> guard(myMutex);
+      FD_SET(server->getListeningFd(), reader);
+      select(FD_SETSIZE, reader, NULL, NULL, NULL);
+
       for (auto client : cc->getClients()) {
         if (FD_ISSET(client.getSockfd(), reader) > 0) {
           if (client.receive() <= 0) {
@@ -66,11 +75,14 @@ const void receiveMessages(ClientCluster *cc, fd_set *reader) {
 
 const void start(Server &server) {
   server.initAndListen();
-  fd_set         listenSet, reader;
+
   ClientCluster *cc = server.getClientCluster();
+  fd_set         listenSet, reader;
 
   thread(listenConnections, cc, &server, &listenSet).detach();
-  thread(receiveMessages, cc, &reader).join();
+  thread(receiveMessages, cc, &server, &reader).join();
+
+  sem_destroy(&recvLock);
 
   close(server.getListeningFd());
 }

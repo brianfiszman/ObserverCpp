@@ -25,6 +25,11 @@ int chk_argn(int *argc) {
   return 0;
 }
 
+const bool isAnyoneConnected(ClientCluster *cc) {
+  lock_guard<std::mutex> guard(sockLock);
+  return cc->getClients().size() > 0;
+}
+
 const void listenConnections(ClientCluster *cc,
                              Server *       server,
                              fd_set *       listenSet) {
@@ -48,13 +53,8 @@ const void receiveMessages(ClientCluster *cc, Server *server, fd_set *reader) {
   do {
     FD_ZERO(reader);
 
-    if (cc->getClients().size() <= 0) {
-      sem_init(&recvLock, 0, 0);
-      sem_wait(&recvLock);
-    }
-
-    lock_guard<std::mutex> guard(sockLock);
-    if (cc->getClients().size() > 0) {
+    if (isAnyoneConnected(cc)) {
+      lock_guard<std::mutex> guard(sockLock);
       for (auto client : cc->getClients()) FD_SET(client.getSockfd(), reader);
 
       FD_SET(server->getListeningFd(), reader);
@@ -69,6 +69,9 @@ const void receiveMessages(ClientCluster *cc, Server *server, fd_set *reader) {
           }
         }
       }
+    } else {
+      sem_init(&recvLock, 0, 0);
+      sem_wait(&recvLock);
     }
   } while (true);
 }

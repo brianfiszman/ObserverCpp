@@ -18,16 +18,19 @@ void error(char *err_msg) {
 }
 
 int chk_argn(int *argc) {
-  if (*argc < 1) {
+  if (*argc < 2) {
     error((char *)"ERROR: indicate the server address and the port number!");
   }
 
   return 0;
 }
 
-const void listenConnections(ClientCluster *cc,
-                             Server *       server,
-                             fd_set *       listenSet) {
+const bool isAnyoneConnected(ClientCluster *cc) {
+  lock_guard<std::mutex> guard(sockLock);
+  return cc->getClients().size() > 0;
+}
+
+const void listenConnections(Server *server, fd_set *listenSet) {
   while (true) {
     FD_ZERO(listenSet);
     FD_SET(server->getListeningFd(), listenSet);
@@ -38,49 +41,48 @@ const void listenConnections(ClientCluster *cc,
 
       lock_guard<std::mutex> guard(sockLock);
 
-      Client c = cc->createClient(server->acceptClient());
-      cc->notify(c, true);
+      Client c =
+          server->getClientCluster()->createClient(server->acceptClient());
+      server->getClientCluster()->notify(c, true);
     }
   }
 }
 
-const void receiveMessages(ClientCluster *cc, Server *server, fd_set *reader) {
+const void receiveMessages(Server *server, fd_set *reader) {
   do {
     FD_ZERO(reader);
 
-    if (cc->getClients().size() <= 0) {
-      sem_init(&recvLock, 0, 0);
-      sem_wait(&recvLock);
-    }
-
-    lock_guard<std::mutex> guard(sockLock);
-    if (cc->getClients().size() > 0) {
-      for (auto client : cc->getClients()) FD_SET(client.getSockfd(), reader);
+    if (isAnyoneConnected(server->getClientCluster())) {
+      lock_guard<std::mutex> guard(sockLock);
+      for (auto client : server->getClientCluster()->getClients())
+        FD_SET(client.getSockfd(), reader);
 
       FD_SET(server->getListeningFd(), reader);
       select(FD_SETSIZE, reader, NULL, NULL, NULL);
 
-      for (auto client : cc->getClients()) {
+      for (auto client : server->getClientCluster()->getClients()) {
         if (FD_ISSET(client.getSockfd(), reader) > 0) {
           if (client.receive() <= 0) {
-            cc->destroyClient(client);
-            cc->notify(client, false);
+            server->getClientCluster()->destroyClient(client);
+            server->getClientCluster()->notify(client, false);
             continue;
           }
         }
       }
+    } else {
+      sem_init(&recvLock, 0, 0);
+      sem_wait(&recvLock);
     }
   } while (true);
 }
 
 const void start(Server &server) {
+  fd_set listenSet, reader;
+
   server.initAndListen();
 
-  ClientCluster *cc = server.getClientCluster();
-  fd_set         listenSet, reader;
-
-  thread(listenConnections, cc, &server, &listenSet).detach();
-  thread(receiveMessages, cc, &server, &reader).join();
+  thread(listenConnections, &server, &listenSet).detach();
+  thread(receiveMessages, &server, &reader).join();
 
   sem_destroy(&recvLock);
 

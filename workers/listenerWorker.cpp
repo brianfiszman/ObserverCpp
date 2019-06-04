@@ -2,7 +2,7 @@
 ListenerWorker::ListenerWorker(Server &server, fd_set &workerSet)
     : Worker(server, workerSet){};
 
-const void ListenerWorker::run(Server &server, fd_set &listenSet) {
+const void ListenerWorker::run() {
   t = thread(&ListenerWorker::listenConnections, this);
   t.detach();
 }

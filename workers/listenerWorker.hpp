@@ -6,10 +6,11 @@
 
 class ListenerWorker : public Worker {
  public:
-  ListenerWorker() = delete;
   ListenerWorker(Server &, fd_set &);
-  const void listenConnections();
   const void run(Server &, fd_set &);
+
+ private:
+  const void listenConnections();
 };
 
 #endif

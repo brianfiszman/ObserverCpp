@@ -1,9 +1,19 @@
 CC=g++
 CFLAGS=-I. -std=c++0x -lpthread -Wall
-OBJ = main.cpp server.cpp client.cpp clientCluster.cpp helpers/argchecker.cpp workers/workers.cpp workers/worker.cpp workers/receiverWorker.cpp workers/listenerWorker.cpp
+PROG=server
+SRCS := $(patsubst %.cpp,%.o,$(wildcard *.cpp))
+SRCS += $(patsubst %.cpp,%.o,$(wildcard workers/*.cpp))
+SRCS += $(patsubst %.cpp,%.o,$(wildcard helpers/*.cpp))
 
 %.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-server: $(OBJ)
+$(PROG): $(SRCS)
 	$(CC) -o $@ $^ $(CFLAGS)
+
+clean:
+	rm -f $(PROG)
+	rm -f *.o
+	rm -f */*.o
+	rm -f */*/*.o
+	rm -f */*/*/*.o

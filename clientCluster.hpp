@@ -1,6 +1,7 @@
 #ifndef CLIENT_CLUSTER
 #define CLIENT_CLUSTER
 
+#include <arpa/inet.h>
 #include <list>
 #include "client.hpp"
 

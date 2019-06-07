@@ -11,11 +11,11 @@ int sock::socket(addrinfo* res) {
 }
 
 int sock::bind(int& __sock, addrinfo* res) {
+  sock::setReusable(__sock, 1);
+
   int statusCode = ::bind(__sock, res->ai_addr, res->ai_addrlen);
 
   if (statusCode < 0) throw std::runtime_error("Error in bind()");
-
-  sock::setReusable(__sock, 1);
 
   freeaddrinfo(res);
 

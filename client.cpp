@@ -1,7 +1,4 @@
 #include "client.hpp"
-#include <arpa/inet.h>
-#include <unistd.h>
-#include <string>
 
 Client::Client(){};
 Client::Client(int sockfd) : sockfd(sockfd){};

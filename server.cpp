@@ -1,8 +1,10 @@
 #include "server.hpp"
 #include <arpa/inet.h>
 #include <iostream>
+#include "helpers/socket.hpp"
 
 using namespace std;
+using namespace sock;
 
 Server::Server() { port = 0; }
 Server::Server(const char port[])
@@ -25,27 +27,22 @@ const void Server::initAddrInfo() {
 ClientCluster *Server::getClientCluster() { return this->clientCluster; }
 char *         Server::getPort() { return this->port; };
 int            Server::getListeningFd() { return this->listenFd; }
-const void     Server::setReusable(const int reuse = 1) {
-  CHECK(setsockopt(this->listenFd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT,
-                   (const char *)&reuse, sizeof(reuse)));
-}
 
 Client Server::acceptClient() {
   Client c = Client();
 
-  c.setSockfd(CHECK(accept(this->listenFd, (struct sockaddr *)c.getClientAddr(),
-                           c.getClientAddrLen())));
+  int csock = sock::accept(this->listenFd, c);
+
+  c.setSockfd(csock);
 
   return c;
 }
 
 const void Server::initAndListen() {
-  CHECK(this->listenFd =
-            socket(res->ai_family, res->ai_socktype, res->ai_protocol));
-  CHECK(bind(this->listenFd, res->ai_addr, res->ai_addrlen));
+  try {
+    this->listenFd = socket(res);
 
-  freeaddrinfo(res);
-  setReusable(1);
-
-  CHECK(listen(this->listenFd, 3));
+    sock::bind(this->listenFd, res);
+    sock::listen(this->listenFd, 3);
+  } catch (const std::exception &e) { std::cerr << e.what() << '\n'; }
 }

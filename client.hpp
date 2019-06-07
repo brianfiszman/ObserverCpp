@@ -1,8 +1,11 @@
 #ifndef CLIENT_H
 #define CLIENT_H
+#include <arpa/inet.h>
 #include <netdb.h>
 #include <string.h>
+#include <unistd.h>
 #include <iostream>
+#include <string>
 
 using namespace std;
 class Client {

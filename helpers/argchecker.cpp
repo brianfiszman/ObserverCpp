@@ -1,5 +1,4 @@
 #include "argchecker.hpp"
-#include <iostream>
 
 void error(char *err_msg) {
   perror(err_msg);

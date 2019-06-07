@@ -20,6 +20,7 @@ class Worker {
   static sem_t          recvLock;
   static std::mutex     sockLock;
   static struct timeval selTimeout;
+  virtual const void    run() = 0;
 };
 
 #endif

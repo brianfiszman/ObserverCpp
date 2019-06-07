@@ -3,7 +3,7 @@
 ReceiverWorker::ReceiverWorker(Server &server, fd_set &workerSet)
     : Worker(server, workerSet){};
 
-const void ReceiverWorker::run(Server &server, fd_set &reader) {
+const void ReceiverWorker::run() {
   t = thread(&ReceiverWorker::receiveMessages, this);
   t.join();
 }

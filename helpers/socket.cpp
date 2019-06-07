@@ -1,6 +1,4 @@
 #include "./socket.hpp"
-#include <arpa/inet.h>
-#include <stdexcept>
 
 int sock::socket(addrinfo* res) {
   int __sock = ::socket(res->ai_family, res->ai_socktype, res->ai_protocol);

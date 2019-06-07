@@ -1,5 +1,4 @@
 #include "clientCluster.hpp"
-#include <arpa/inet.h>
 
 const void ClientCluster::destroyClient(Client& c) {
   c.end();

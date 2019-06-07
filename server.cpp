@@ -1,10 +1,4 @@
 #include "server.hpp"
-#include <arpa/inet.h>
-#include <iostream>
-#include "helpers/socket.hpp"
-
-using namespace std;
-using namespace sock;
 
 Server::Server() { port = 0; }
 Server::Server(const char port[])
@@ -44,9 +38,9 @@ const void Server::initAndListen() {
 
     sock::bind(this->listenFd, res);
     sock::listen(this->listenFd, 3);
-  } catch (std::runtime_error const& err) { 
-    std::cerr << err.what() << '\n'; 
-    
+  } catch (std::runtime_error const &err) {
+    std::cerr << err.what() << '\n';
+
     this->~Server();
 
     terminate();

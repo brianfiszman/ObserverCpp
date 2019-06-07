@@ -22,7 +22,10 @@ class Server {
  public:
   Server();
   Server(const char port[]);
-  ~Server() { delete clientCluster; };
+  ~Server() { 
+    delete clientCluster;
+    close(this->listenFd); 
+  };
 
   ClientCluster* getClientCluster();
   const void     initAndListen();

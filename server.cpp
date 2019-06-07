@@ -44,5 +44,11 @@ const void Server::initAndListen() {
 
     sock::bind(this->listenFd, res);
     sock::listen(this->listenFd, 3);
-  } catch (const std::exception &e) { std::cerr << e.what() << '\n'; }
+  } catch (std::runtime_error const& err) { 
+    std::cerr << err.what() << '\n'; 
+    
+    this->~Server();
+
+    terminate();
+  }
 }

@@ -1,10 +1,11 @@
 #include "./socket.hpp"
 #include <arpa/inet.h>
+#include <stdexcept>
 
 int sock::socket(addrinfo* res) {
   int __sock = ::socket(res->ai_family, res->ai_socktype, res->ai_protocol);
 
-  if (__sock < 0) throw "Error in socket()";
+  if (__sock < 0) throw std::runtime_error("Error in socket()");
 
   return __sock;
 }
@@ -12,7 +13,7 @@ int sock::socket(addrinfo* res) {
 int sock::bind(int& __sock, addrinfo* res) {
   int statusCode = ::bind(__sock, res->ai_addr, res->ai_addrlen);
 
-  if (statusCode < 0) throw "Error in bind()";
+  if (statusCode < 0) throw std::runtime_error("Error in bind()");
 
   sock::setReusable(__sock, 1);
 
@@ -24,7 +25,7 @@ int sock::bind(int& __sock, addrinfo* res) {
 int sock::listen(int& __sock, const int __n) {
   int statusCode = ::listen(__sock, __n);
 
-  if (statusCode < 0) throw "Error in listen()";
+  if (statusCode < 0) throw std::runtime_error("Error in listen()");
 
   return statusCode;
 };
@@ -36,7 +37,7 @@ int sock::setReusable(int& __sock, const int reuse) {
                                 (const char*)&reuse,
                                 sizeof(reuse));
 
-  if (statusCode < 0) throw "Error in setsockopt()";
+  if (statusCode < 0) throw std::runtime_error("Error in setsockopt()");
 
   return statusCode;
 }
@@ -47,7 +48,7 @@ int sock::accept(int& __sock, Client& __c) {
 
   int __csock = accept(__sock, clientAddr, clientAddrLen);
 
-  if (__csock < 0) throw "Error in accept()";
+  if (__csock < 0) throw std::runtime_error("Error in accept()");
 
   return __csock;
 };

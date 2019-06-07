@@ -7,7 +7,7 @@
 class ReceiverWorker : public Worker {
  public:
   ReceiverWorker(Server &, fd_set &);
-  const void run(Server &, fd_set &);
+  const void run();
 
  private:
   const bool isAnyoneConnected(ClientCluster *);

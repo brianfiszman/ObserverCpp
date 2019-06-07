@@ -10,8 +10,8 @@ const void start(Server &server) {
   ListenerWorker listenerWorker(server, listenSet);
   ReceiverWorker receiverWorker(server, reader);
 
-  listenerWorker.run(server, listenSet);
-  receiverWorker.run(server, reader);
+  listenerWorker.run();
+  receiverWorker.run();
 
   close(server.getListeningFd());
 }
